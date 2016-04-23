@@ -1,0 +1,158 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <iso646.h>
+#include <stdbool.h>
+
+typedef struct tCell{
+	int payload;
+	struct tCell *next;
+} Cell;
+
+Cell* agrega(Cell *base, int entrada){
+	Cell* reg;
+	reg=malloc(sizeof(Cell));
+    if (reg == NULL) {
+        printf("nulo");
+        return NULL;
+    }
+	reg->payload=entrada;
+    reg->next = NULL;
+	Cell* cursor = base;
+	while(cursor->next !=NULL){
+		cursor=(Cell*)cursor->next;
+	}
+	cursor->next=reg;
+	return base;
+}
+
+void imprime(Cell *raiz){
+	while(raiz->next !=NULL){
+		printf("%d->",raiz->next->payload);
+		raiz=raiz->next;
+	}
+}
+
+Cell pop(Cell *ruta){
+	if(ruta->next==NULL){return *ruta;}
+	Cell* cursor=ruta;
+	while(((Cell*)cursor->next)->next !=NULL){
+		//printf("%d", cursor->payload);
+		cursor=(Cell*)cursor->next;
+		//printf("%d", cursor->payload);
+	}
+	//printf("%d", cursor->payload);
+	free((void *)cursor->next);
+	//printf("%d", cursor->payload);
+	cursor->next=NULL;
+	return *ruta;
+}
+
+Cell erase(Cell *celda){
+	while(celda->next!=NULL)
+		pop(celda);
+	return *celda;
+}
+
+Cell borranodo(Cell *lista, int nodo){
+	Cell* cursor=lista;
+	Cell* cambio;
+	for(int i=1; i<nodo; i++){
+		cursor=(Cell*)cursor->next;
+	}
+	//printf("%d",cursor->payload);
+	if(((Cell*)cursor->next)->next==NULL){pop(lista); return *lista;}
+	cambio=((Cell*)cursor->next)->next;
+	free((void*)cursor->next);
+	cursor->next= cambio;
+	return *lista;
+}
+
+void buscanodo(Cell *lista, int nodo){
+	Cell* cursor=lista;
+	for(int i=0; i<nodo; i++){
+		cursor=(Cell*)cursor->next;
+	}
+	printf("El nodo en la posición %d es:%d \n",nodo, cursor->payload);
+}
+
+Cell editanodo(Cell *lista, int nodo, int cambio){
+	Cell* reg;
+	reg=malloc(sizeof(Cell));
+/*    if (reg == NULL) {
+        printf("nulo");
+        return NULL;
+    }*/
+	reg->payload=cambio;
+   
+	Cell* cursor=lista;
+	for(int i=1; i<nodo; i++){
+		cursor=(Cell*)cursor->next;
+	}
+
+	 reg->next = ((Cell*)cursor->next)->next;	
+	cursor->next=reg;
+
+	 return *lista;
+}
+
+
+Cell opciones(Cell *base){
+	int opcion=0;
+	bool ev=false;
+	int num;
+	while(ev==false){
+		printf("Dame una opción: \n0 - Agrega nodo\n1 - Borra último nodo\n2 - Imprime lista\n3 - Borra algún nodo\n4 - Busca un nodo\n5 - edita un nodo\n6 - Salir\n");
+		scanf("%d", &opcion);
+		if(opcion==0){
+			
+			//printf("%d", base->payload);
+			printf("Dame un numero\n");
+			scanf("%d", &num);	
+			//printf("%d", base->payload);
+			agrega(base, num);
+			//printf("%d", ((Cell*)base->next)->payload);
+			//imprime(base); 
+		} else if(opcion==1){
+			pop(base);
+			printf("Último elemento borrado\n");
+		} else if(opcion==2){
+			printf("imprimiendo la lista\n");
+			imprime(base);
+		} else if(opcion==3){
+			int nodo=1;
+			printf("¿Qué numero de nodo deseas borrar?\n");			
+			scanf("%d", &nodo);
+			borranodo(base,nodo);
+			
+		} else if(opcion==4){
+			int nodo=1;
+			printf("¿Qué nodo quieres buscar?\n");
+			scanf("%d", &nodo);
+			buscanodo(base, nodo);
+		} else if(opcion==5){
+			int nodo=0;
+			int cambio=0;
+			printf("¿Qué nodo deseas cambiar?\n");
+			scanf("%d", &nodo);
+			printf("¿Por cuál nodo lo deseas cambiar?\n");
+			scanf("%d", &cambio);
+			editanodo(base,nodo,cambio);
+		} else if(opcion==6){
+			//imprime(base);
+			erase(base);
+			ev=true;
+		} else {
+			printf("Error, ingresa una opción válida\n");
+		}
+	}
+	return *base;
+}
+
+int main(int argc, char* argv[]) {
+	Cell *root;
+	root = (Cell *)malloc(sizeof(Cell));
+	root->payload = -1;
+    root->next = NULL;
+	opciones(root);
+	return 0;
+}
